@@ -1,0 +1,2 @@
+Msg 102, Level 15, State 1, Server ASG-DB-01, Line 6
+Incorrect syntax near 'SuperBrugsen'.

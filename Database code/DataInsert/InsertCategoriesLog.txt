@@ -1,0 +1,37 @@
+Changed database context to 'Shoppinglist_app_ORM_demo'.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 3
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Meat).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 4
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Dairy).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 5
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Colonial).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 6
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Fruit & Vegetables).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 7
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Selfcare).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 8
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Cleaning).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 9
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Pet stuff).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 10
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Snacks).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 11
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Bread).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 12
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Fish).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 13
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Fizzydrinks).
+The statement has been terminated.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 14
+Violation of UNIQUE KEY constraint 'UQ__Category__8517B2E0F8DF973E'. Cannot insert duplicate key in object 'dbo.Category'. The duplicate key value is (Other).
+The statement has been terminated.

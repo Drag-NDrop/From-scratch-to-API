@@ -1,0 +1,17 @@
+Changed database context to 'Shoppinglist_app_ORM_demo'.
+Msg 3701, Level 11, State 5, Server ASG-DB-01, Line 8
+Cannot drop the table 'Category', because it does not exist or you do not have permission.
+Msg 3701, Level 11, State 5, Server ASG-DB-01, Line 9
+Cannot drop the table 'Product', because it does not exist or you do not have permission.
+Msg 3701, Level 11, State 5, Server ASG-DB-01, Line 10
+Cannot drop the table 'ProductCategoryMap', because it does not exist or you do not have permission.
+Msg 3701, Level 11, State 5, Server ASG-DB-01, Line 11
+Cannot drop the table 'ShoppingItemLine', because it does not exist or you do not have permission.
+Msg 3701, Level 11, State 5, Server ASG-DB-01, Line 12
+Cannot drop the table 'ShoppingList', because it does not exist or you do not have permission.
+Msg 3701, Level 11, State 5, Server ASG-DB-01, Line 13
+Cannot drop the table 'UnitType', because it does not exist or you do not have permission.
+Msg 3701, Level 11, State 5, Server ASG-DB-01, Line 14
+Cannot drop the table 'Vendor', because it does not exist or you do not have permission.
+Msg 3701, Level 11, State 5, Server ASG-DB-01, Line 15
+Cannot drop the table 'VendorProductPriceMap', because it does not exist or you do not have permission.

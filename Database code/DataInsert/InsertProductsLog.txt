@@ -1,0 +1,4 @@
+Msg 102, Level 15, State 1, Server ASG-DB-01, Line 15
+Incorrect syntax near 'Økologisk Letmælk'.
+Msg 1038, Level 15, State 4, Server ASG-DB-01, Line 15
+An object or column name is missing or empty. For SELECT INTO statements, verify each column has a name. For other statements, look for empty alias names. Aliases defined as "" or [] are not allowed. Change the alias to a valid name.

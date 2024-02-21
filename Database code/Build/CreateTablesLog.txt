@@ -1,0 +1,3 @@
+Changed database context to 'Shoppinglist_app_ORM_demo'.
+Msg 2714, Level 16, State 6, Server ASG-DB-01, Line 5
+There is already an object named 'Category' in the database.

@@ -1,0 +1,2 @@
+Msg 2714, Level 16, State 3, Server ASG-DB-01, Procedure Update_VendorNameByVendorID, Line 6
+There is already an object named 'Update_VendorNameByVendorID' in the database.

@@ -1,0 +1,2 @@
+CREATE DATABASE Shoppinglist_app_ORM_demo
+GO

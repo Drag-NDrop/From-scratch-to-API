@@ -1,0 +1,4 @@
+Changed database context to 'Shoppinglist_app_ORM_demo'.
+Msg 2627, Level 14, State 1, Server ASG-DB-01, Line 3
+Violation of UNIQUE KEY constraint 'UQ__UnitType__D3AE278A695F89D2'. Cannot insert duplicate key in object 'dbo.UnitType'. The duplicate key value is (Kilogram).
+The statement has been terminated.

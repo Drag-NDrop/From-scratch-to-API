@@ -1,0 +1,2 @@
+Msg 1801, Level 16, State 3, Server ASG-DB-01, Line 1
+Database 'Shoppinglist_app_ORM_demo' already exists. Choose a different database name.
