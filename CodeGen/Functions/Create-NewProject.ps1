@@ -54,6 +54,9 @@ Function Create-NewProject {
         [Parameter(Mandatory = $true)]
         [string]$pathToYourProjectDirectory,
         
+        [Parameter(Mandatory = $true)]
+        [string]$frameWork,
+
         [switch]$DisableCultureInvariance
     )
     
@@ -70,7 +73,7 @@ Function Create-NewProject {
     Set-Location -Path $pathToYourProjectDirectory
 
     # Create a new .NET Core Web API project
-    dotnet new webapi -n $newProjectName -o $newProjectName
+    dotnet new webapi -n $newProjectName -o $newProjectName --framework $frameWork
 
     # Navigate into the project directory
     Set-Location -Path $newProjectName

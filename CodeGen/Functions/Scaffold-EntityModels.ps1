@@ -19,3 +19,5 @@ Function Scaffold-EntityModels {
  
     Write-Host "Scaffolding complete. Models and DbContext moved to their respective directories." -ForegroundColor Green
 }
+
+

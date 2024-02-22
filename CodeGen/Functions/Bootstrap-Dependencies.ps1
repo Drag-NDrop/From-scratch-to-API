@@ -2,19 +2,22 @@ Function Bootstrap-Dependencies {
 param(
 # Define the path to the project file
     [Parameter(Mandatory = $true)]
-    $csProjPath
+    $csProjPath,
+    # Define the list of dependencies to add to the project
+    [Parameter(Mandatory = $true)]
+    $dependencyArray
 )
     write-host "Adding dependencies: $csProjPath"
     # Define the list of packages to install with their respective versions
-    $packages = @(
+    <#$packages = @(
         @{ Name="Microsoft.EntityFrameworkCore"; Version="8.0.2" },
         @{ Name="Microsoft.EntityFrameworkCore.SqlServer"; Version="8.0.2" },
         @{ Name="Microsoft.EntityFrameworkCore.Tools"; Version="8.0.2" },
         @{ Name="Microsoft.VisualStudio.Web.CodeGeneration.Design"; Version="8.0.1" }
-    )
+    )#>
 
     # Loop through each package and use dotnet CLI to add it to the project
-    foreach ($package in $packages) {
+    foreach ($package in $dependencyArray) {
         $packageName = $package.Name
         $packageVersion = $package.Version
         Write-Host "Installing $packageName version $packageVersion..."

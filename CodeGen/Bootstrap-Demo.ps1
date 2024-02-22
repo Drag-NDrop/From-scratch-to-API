@@ -18,11 +18,17 @@ This script will:
 
 # Define the project variables. We pass these around to the different functions.
 # This should be your starting point, if debugging becomes necessary.
-$PathToYourNewProject = 'G:\ORM_Demo'
+$PathToYourNewProject = 'G:\ORM_Demo2'
 $NewProjectName = "ORM_Demo"
 $DbContextName = "ShoppingListAppContext"
 $connectionString = "Server=ASG-DB-01;Initial Catalog=Shoppinglist_app;Persist Security Info=False;User ID=sa;Password=MonkeyTonkeyLand?;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30"
-
+$frameworkVersionTarget = "net8.0"
+$dependencyArray = @(
+    @{ Name="Microsoft.EntityFrameworkCore"; Version="8.0.2" },
+    @{ Name="Microsoft.EntityFrameworkCore.SqlServer"; Version="8.0.2" },
+    @{ Name="Microsoft.EntityFrameworkCore.Tools"; Version="8.0.2" },
+    @{ Name="Microsoft.VisualStudio.Web.CodeGeneration.Design"; Version="8.0.1" }
+)
 # Import the functions. In Powershell, this is known as Dot-sourcing a script.
 # It's a way to include the functions from another script, so we can use them in this script.
 # This is the reason why we can call the functions without having to define them in this script.
@@ -40,6 +46,7 @@ $connectionString = "Server=ASG-DB-01;Initial Catalog=Shoppinglist_app;Persist S
 # This is done for readability, as it makes the script easier to read and understand.
 Create-NewProject -newProjectName $newProjectName `
                   -pathToYourProjectDirectory $PathToYourNewProject `
+                  -framework $frameworkVersionTarget `
                   -DisableCultureInvariance
                   # Right after, update the connectionstring in the appsettings.json file
                   Update-ConnectionStringInAppSettings -projectPath "$(Join-Path $PathToYourNewProject $NewProjectName)" `
@@ -60,7 +67,7 @@ $projectPath = "$PathToYourNewProject\$newProjectName"
     Microsoft.EntityFrameworkCore.SqlServer,           => To provide support for SQL Server
     "Microsoft.VisualStudio.Web.CodeGeneration.Design  => To be able to scaffold the API
 #>
-Bootstrap-Dependencies -csProjPath $pathToYourProjectFile.FullName
+Bootstrap-Dependencies -csProjPath $pathToYourProjectFile.FullName -dependencyArray $dependencyArray
 
 # Scaffold the entity models and API
 Write-host "Project path: $ProjectPath"
