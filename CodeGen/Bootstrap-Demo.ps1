@@ -18,7 +18,7 @@ This script will:
 
 # Define the project variables. We pass these around to the different functions.
 # This should be your starting point, if debugging becomes necessary.
-$PathToYourNewProject = 'G:\ORM_Demo2'
+$PathToYourNewProject = 'G:\ORM_Demo3'
 $NewProjectName = "ORM_Demo"
 $DbContextName = "ShoppingListAppContext"
 $connectionString = "Server=ASG-DB-01;Initial Catalog=Shoppinglist_app;Persist Security Info=False;User ID=sa;Password=MonkeyTonkeyLand?;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30"

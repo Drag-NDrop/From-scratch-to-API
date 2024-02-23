@@ -13,7 +13,8 @@ Function Scaffold-EntityModels {
 
     # Get the csproj file
     $csprojFile = Get-ChildItem -Path $projectPath -Filter *.csproj -Recurse | Select-Object -First 1
-
+    Write-host "Scaffolding models and DbContext for the project located at: $projectPath"
+    Write-host "Targetting the .csproj file located at: $($csprojFile.FullName)"
     # Scaffold the DbContext and the models
     dotnet ef dbcontext scaffold $connectionString $provider --output-dir $outputDir --context-dir "Data" --context $context -p $csprojFile.FullName -s $csprojFile.FullName
  
