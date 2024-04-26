@@ -37,6 +37,7 @@ $AddThisToAppSettingsFile = @"
 "@
 
 $AddThisToProgramFileForSwaggerAuthSupport = @"
+// Swagger Authorization support configuration starts here
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
@@ -64,6 +65,7 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+// Swagger Authorization support configuration ends here
 "@
 
 $AddThisToProgramFile = @"
