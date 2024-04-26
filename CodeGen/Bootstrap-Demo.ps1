@@ -18,18 +18,44 @@ This script will:
 
 # Define the project variables. We pass these around to the different functions.
 # This should be your starting point, if debugging becomes necessary.
+
+# ==> Project variables <==
 $PathToYourNewProject = 'D:\LiveDemoForKlassen'
 $NewProjectName = "GoSave"
 $DbContextName = "GoSaveContext"
+# ==> Database variables <==
 $connectionString = "Server=10.10.10.13;Initial Catalog=db_gosave;Persist Security Info=False;User ID=GoSave-dbadmin;Password=Temp1234!!;Connection Timeout=30"
-$frameworkVersionTarget = "net8.0"
-$providerTarget = "MariaDB" # Other valid values MSSQL, MariaDB, MySQL
-#$providerTarget = "MSSQL" # Other valid values MSSQL, MariaDB, MySQL
+$frameworkVersionTarget = "net8.0" # Used when creating the new project. Other valid values: net5.0, net6.0
+$providerTarget = "MariaDB" # Other valid values MSSQL, MariaDB, MySQL # This is the DBMS You're using
+$InstallJWT = $true # If you want to install JWT, set this to true. If not, set it to false.
+$JwtSettings= @()
+if ($InstallJWT) {
+    $JwtSettings = @(
+        # https://medium.com/@vndpal/how-to-implement-jwt-token-authentication-in-net-core-6-ab7f48470f5c
+        @{ TaskName='SetupJWT-Install'; PackageInformation='Microsoft.AspNetCore.Authentication.JwtBearer'; Version='8.0.4' },
+        @{ TaskName='SetupJWT-Install'; PackageInformation='System.IdentityModel.Tokens.Jwt'; Version='7.5.1' },
+        
+        @{ TaskName='SetupJWT-User'; JwtUsername='Api-Admin'; JwtPassword='Yada-yada';},
+        @{ TaskName='SetupJWT-Choice'; Name='Protect-Get'; Choice='yes' },
+        @{ TaskName='SetupJWT-Choice'; Name='Protect-GetById'; Choice='yes' },
+        @{ TaskName='SetupJWT-Choice'; Name='Protect-Post'; Choice='yes' },
+        @{ TaskName='SetupJWT-Choice'; Name='Protect-PutById'; Choice='yes' },
+        @{ TaskName='SetupJWT-Choice'; Name='Protect-DeleteById'; Choice='yes' },
+        
+        @{ TaskName='SetupJWT-Options'; JwtKey='Secr3tK3y!'; Issuer='"yourCompanyIssuer.com"' }
+        #"Jwt": {
+        #   "Key": "YourSecretKeyForAuthenticationOfApplication",
+        #   "Issuer": "youtCompanyIssuer.com"
+        # }
+    )
+}
+
 $dependencyArray = @(
     @{ Name="Microsoft.EntityFrameworkCore"; Version="8.0.2" },
     @{ Name="Microsoft.EntityFrameworkCore.Tools"; Version="8.0.2" },
     @{ Name="Microsoft.VisualStudio.Web.CodeGeneration.Design"; Version="8.0.1" },
     @{ Name="Microsoft.EntityFrameworkCore.SqlServer"; Version="8.0.2" }
+    
 )
 switch ($providerTarget) {
     "MSSQL"   { 
