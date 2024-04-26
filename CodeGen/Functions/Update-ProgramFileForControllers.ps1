@@ -7,7 +7,9 @@ Function Update-ProgramFileForControllers {
         [Parameter(Mandatory=$true)]
         [string]$dbContextName,  # The name of your DbContext class
         [Parameter(Mandatory=$true)]
-        [string]$connectionStringName  # The key name of your connection string in appsettings.json
+        [string]$connectionStringName,  # The key name of your connection string in appsettings.json
+        [Parameter(Mandatory=$true)]
+        [string]$providerTarget  # The provider target for the connection string (e.g. Microsoft.EntityFrameworkCore.SqlServer)
     )
 
     $programFilePath = Join-Path -Path $projectPath -ChildPath "Program.cs"
@@ -33,7 +35,9 @@ Function Update-ProgramFileForControllers {
     # Add usings on the top line
     $usings = @"
 using Microsoft.EntityFrameworkCore;
+using $providerTarget;
 using $projectName.Data;
+
 "@
     
 
@@ -59,11 +63,49 @@ using $projectName.Data;
     # Lazy extension of the function to add the DbContext registration
     # This is just a proof of concept, after all....
 
+    $dbContextSnippet = "" #Ensure the variable exists outside of the switch scope
     # Prepare the DbContext registration snippet
-    $dbContextSnippet = @"
+    switch ($providerTarget) {
+        "Microsoft.EntityFrameworkCore.SqlServer" { 
+            $dbContextSnippet = @"
+builder.Services.AddDbContext<$dbContextName>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("$connectionStringName"))
+    .LogTo(Console.WriteLine, LogLevel.Information)
+    .EnableSensitiveDataLogging()
+    .EnableDetailedErrors()
+    );
+"@
+         }
+        "Pomelo.EntityFrameworkCore.MySql" {
+            $dbContextSnippet = @"
+            var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
+builder.Services.AddDbContext<$dbContextName>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("$connectionStringName"),serverVersion)
+    .LogTo(Console.WriteLine, LogLevel.Information)
+    .EnableSensitiveDataLogging()
+    .EnableDetailedErrors()
+    );
+"@
+          }
+        "MySql.Data.EntityFrameworkCore" {
+            $dbContextSnippet = @"
+            var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
+builder.Services.AddDbContext<$dbContextName>(options =>
+options.UseMySql(builder.Configuration.GetConnectionString("$connectionStringName"),serverVersion)
+    .LogTo(Console.WriteLine, LogLevel.Information)
+    .EnableSensitiveDataLogging()
+    .EnableDetailedErrors()
+    );
+"@
+          }
+
+        Default {}
+    }
+<#    $dbContextSnippet = @"
 builder.Services.AddDbContext<$dbContextName>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("$connectionStringName")));
 "@
+#>
  # Read Program.cs content
  $programContent = Get-Content $programFilePath -Raw
 

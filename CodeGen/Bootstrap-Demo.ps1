@@ -18,17 +18,40 @@ This script will:
 
 # Define the project variables. We pass these around to the different functions.
 # This should be your starting point, if debugging becomes necessary.
-$PathToYourNewProject = 'G:\ORM_Demo3'
-$NewProjectName = "ORM_Demo"
-$DbContextName = "ShoppingListAppContext"
-$connectionString = "Server=ASG-DB-01;Initial Catalog=Shoppinglist_app;Persist Security Info=False;User ID=sa;Password=MonkeyTonkeyLand?;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30"
+$PathToYourNewProject = 'D:\LiveDemoForKlassen'
+$NewProjectName = "GoSave"
+$DbContextName = "GoSaveContext"
+# $connectionString = "Server=ASG-DB-01;Initial Catalog=db_gosave;Persist Security Info=False;User ID=GoSave-dbadmin;Password=ASDknmgfds12FA!fasdfd_!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30"
+#$connectionString = "Server=10.10.10.13;Port=3306;Initial Catalog=db_gosave;Persist Security Info=False;User ID=GoSave-dbadmin;Password=Temp1234!!;Connection Timeout=30"
+$connectionString = "Server=ASG-DB-01;Initial Catalog=Shoppinglist_app;Persist Security Info=False;User ID=sa;Password=Temp1234!!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30"
 $frameworkVersionTarget = "net8.0"
+#$providerTarget = "MariaDB" # Other valid values MSSQL, MariaDB, MySQL
+$providerTarget = "MSSQL" # Other valid values MSSQL, MariaDB, MySQL
 $dependencyArray = @(
     @{ Name="Microsoft.EntityFrameworkCore"; Version="8.0.2" },
-    @{ Name="Microsoft.EntityFrameworkCore.SqlServer"; Version="8.0.2" },
     @{ Name="Microsoft.EntityFrameworkCore.Tools"; Version="8.0.2" },
-    @{ Name="Microsoft.VisualStudio.Web.CodeGeneration.Design"; Version="8.0.1" }
+    @{ Name="Microsoft.VisualStudio.Web.CodeGeneration.Design"; Version="8.0.1" },
+    @{ Name="Microsoft.EntityFrameworkCore.SqlServer"; Version="8.0.2" }
 )
+switch ($providerTarget) {
+    "MSSQL"   { 
+        $providerTarget = "Microsoft.EntityFrameworkCore.SqlServer"
+    }
+    "MariaDB" { 
+        $dependencyArray += @{ Name="Pomelo.EntityFrameworkCore.MySql"; Version="8.0.2" } 
+        $providerTarget = "Pomelo.EntityFrameworkCore.MySql"
+    }
+    "MySQL"   { 
+        $dependencyArray += @{ Name="MySql.Data.EntityFrameworkCore"; Version="8.0.2" } 
+        $providerTarget = "MySql.Data.EntityFrameworkCore"
+    }
+    Default {
+        Write-Host "Invalid provider target. Please choose between 'MSSQL', 'MariaDB' or 'MySQL'"
+        Write-Host "The script wont work properly when a valid provider target is not chosen."
+        Exit
+    }
+}
+
 # Import the functions. In Powershell, this is known as Dot-sourcing a script.
 # It's a way to include the functions from another script, so we can use them in this script.
 # This is the reason why we can call the functions without having to define them in this script.
@@ -48,10 +71,10 @@ Create-NewProject -newProjectName $newProjectName `
                   -pathToYourProjectDirectory $PathToYourNewProject `
                   -framework $frameworkVersionTarget `
                   -DisableCultureInvariance
-                  # Right after, update the connectionstring in the appsettings.json file
-                  Update-ConnectionStringInAppSettings -projectPath "$(Join-Path $PathToYourNewProject $NewProjectName)" `
-                                                       -connectionString $connectionString `
-                                                       -connectionName $DbContextName 
+# Right after, update the connectionstring in the appsettings.json file
+Update-ConnectionStringInAppSettings -projectPath "$(Join-Path $PathToYourNewProject $NewProjectName)" `
+                                    -connectionString $connectionString `
+                                    -connectionName $DbContextName
                                                        
 
 # Get the path to the project file
@@ -73,17 +96,21 @@ Bootstrap-Dependencies -csProjPath $pathToYourProjectFile.FullName -dependencyAr
 Write-host "Project path: $ProjectPath"
 Write-host "Connection string: $connectionString"
 Write-host "DbContextName: $DbContextName"
-Scaffold-EntityModels -projectPath $projectPath `
-                      -connectionString $connectionString `
-                      -outputDir "Models" `
-                      -provider "Microsoft.EntityFrameworkCore.SqlServer" `
-                      -context $DbContextName `
-                      -contextDir "Context"
+# Splat the parameters for the Scaffold-EntityModels function
+$params = @{
+    projectPath       = $ProjectPath
+    connectionString  = $connectionString
+    outputDir         = "Models"
+    provider          = $providerTarget
+    context           = $DbContextName
+    contextDir        = "Context"
+}
+Scaffold-EntityModels @params
 
-                      # Scaffold the API with minimal CRUD operations
+# Scaffold the API with minimal CRUD operations
 Scaffold-API-MinimalCRUD -projectPath $projectPath -dbContextName $DbContextName
 
-Update-ProgramFileForControllers -projectPath $projectPath -projectName $NewProjectName -connectionStringName $DbContextName -dbContextName $DbContextName
+Update-ProgramFileForControllers -projectPath $projectPath -projectName $NewProjectName -providerTarget $providerTarget -connectionStringName $DbContextName -dbContextName $DbContextName
 
 
 # V2 notes:

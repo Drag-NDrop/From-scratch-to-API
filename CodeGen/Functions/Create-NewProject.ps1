@@ -7,10 +7,8 @@ Function Set-CultureInvarianceInConfig {
         [string]$projectName
     )
 
-
     # Identify the .csproj file
     $csprojFile = Get-ChildItem -Recurse -Path $projectDirectory -Filter "*.csproj" | Select-Object -First 1
-
     if ($null -eq $csprojFile) {
         Write-Host "No .csproj file found in the specified project directory." -ForegroundColor Red
         exit

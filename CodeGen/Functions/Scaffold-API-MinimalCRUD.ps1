@@ -15,9 +15,6 @@ Function Scaffold-API-MinimalCRUD {
         # Extract the model class name from the file name (assuming class name matches file name without the extension)
         $modelName = $file.BaseName
 
-        # Mockup for an updated line as an example
-        # $controllerName = $modelName + "Controller"
-
         # Ensuring to adhere to the information and assuming a minor miscommunication or oversight
         Write-Host "Executing command: dotnet aspnet-codegenerator controller -name ${modelName}Controller -async -api -m $modelName -dc $dbContextName -outDir Controllers"
 
