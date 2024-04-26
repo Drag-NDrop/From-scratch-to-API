@@ -21,12 +21,10 @@ This script will:
 $PathToYourNewProject = 'D:\LiveDemoForKlassen'
 $NewProjectName = "GoSave"
 $DbContextName = "GoSaveContext"
-# $connectionString = "Server=ASG-DB-01;Initial Catalog=db_gosave;Persist Security Info=False;User ID=GoSave-dbadmin;Password=ASDknmgfds12FA!fasdfd_!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30"
-#$connectionString = "Server=10.10.10.13;Port=3306;Initial Catalog=db_gosave;Persist Security Info=False;User ID=GoSave-dbadmin;Password=Temp1234!!;Connection Timeout=30"
-$connectionString = "Server=ASG-DB-01;Initial Catalog=Shoppinglist_app;Persist Security Info=False;User ID=sa;Password=Temp1234!!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30"
+$connectionString = "Server=10.10.10.13;Initial Catalog=db_gosave;Persist Security Info=False;User ID=GoSave-dbadmin;Password=Temp1234!!;Connection Timeout=30"
 $frameworkVersionTarget = "net8.0"
-#$providerTarget = "MariaDB" # Other valid values MSSQL, MariaDB, MySQL
-$providerTarget = "MSSQL" # Other valid values MSSQL, MariaDB, MySQL
+$providerTarget = "MariaDB" # Other valid values MSSQL, MariaDB, MySQL
+#$providerTarget = "MSSQL" # Other valid values MSSQL, MariaDB, MySQL
 $dependencyArray = @(
     @{ Name="Microsoft.EntityFrameworkCore"; Version="8.0.2" },
     @{ Name="Microsoft.EntityFrameworkCore.Tools"; Version="8.0.2" },
