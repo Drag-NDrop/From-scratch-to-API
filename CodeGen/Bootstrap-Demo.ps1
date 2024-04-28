@@ -20,7 +20,7 @@ This script will:
 # This should be your starting point, if debugging becomes necessary.
 
 # ==> Project variables <==
-$PathToYourNewProject = 'D:\LiveDemoForKlassen'
+$PathToYourNewProject = 'D:\LiveDemoForKlassen-TesterJWT'
 $NewProjectName = "GoSave"
 $DbContextName = "GoSaveContext"
 # ==> Database variables <==
@@ -34,19 +34,14 @@ if ($InstallJWT) {
         # https://medium.com/@vndpal/how-to-implement-jwt-token-authentication-in-net-core-6-ab7f48470f5c
         @{ TaskName='SetupJWT-Install'; PackageInformation='Microsoft.AspNetCore.Authentication.JwtBearer'; Version='8.0.4' },
         @{ TaskName='SetupJWT-Install'; PackageInformation='System.IdentityModel.Tokens.Jwt'; Version='7.5.1' },
+        @{ TaskName='SetupJWT-Options'; JwtKey=(New-Guid).Guid; Issuer='yourCompanyIssuer.com' },
         
-        @{ TaskName='SetupJWT-User'; JwtUsername='Api-Admin'; JwtPassword='Yada-yada';},
+        @{ TaskName='SetupJWT-User'; JwtUsername='Api-Admin'; JwtPassword=(New-Guid).Guid;},
         @{ TaskName='SetupJWT-Choice'; Name='Protect-Get'; Choice='yes' },
         @{ TaskName='SetupJWT-Choice'; Name='Protect-GetById'; Choice='yes' },
         @{ TaskName='SetupJWT-Choice'; Name='Protect-Post'; Choice='yes' },
         @{ TaskName='SetupJWT-Choice'; Name='Protect-PutById'; Choice='yes' },
-        @{ TaskName='SetupJWT-Choice'; Name='Protect-DeleteById'; Choice='yes' },
-        
-        @{ TaskName='SetupJWT-Options'; JwtKey='Secr3tK3y!'; Issuer='"yourCompanyIssuer.com"' }
-        #"Jwt": {
-        #   "Key": "YourSecretKeyForAuthenticationOfApplication",
-        #   "Issuer": "youtCompanyIssuer.com"
-        # }
+        @{ TaskName='SetupJWT-Choice'; Name='Protect-DeleteById'; Choice='yes' }
     )
 }
 
@@ -76,6 +71,14 @@ switch ($providerTarget) {
     }
 }
 
+if($InstallJWT -eq $true){
+    foreach($setting in $JwtSettings){
+        if($setting.TaskName -eq 'SetupJWT-Install'){
+            $dependencyArray += @{ Name=$setting.PackageInformation; Version=$setting.Version }
+        }
+    
+    }
+}
 # Import the functions. In Powershell, this is known as Dot-sourcing a script.
 # It's a way to include the functions from another script, so we can use them in this script.
 # This is the reason why we can call the functions without having to define them in this script.
@@ -84,8 +87,14 @@ switch ($providerTarget) {
 . './Functions/Update-ConnectionStringInAppSettings.ps1'
 . './Functions/Bootstrap-dependencies.ps1'
 . './Functions/Scaffold-EntityModels.ps1'
-. './Functions/Update-ProgramFileForControllers.ps1'
+. './Functions/Update-ProgramFile.ps1'
 . './Functions/Scaffold-API-MinimalCRUD.ps1'
+if( $InstallJWT ) {
+    . './Functions/Optional-InstallJWT.ps1'
+    . './Functions/Update-JWTInAppSettings.ps1'
+    . './Functions/Update-APIInAppSettings.ps1'
+    . './Functions/Create-JwtLoginController.ps1'
+}
 
 
 # Create a new project from a .Net Core Web API template
@@ -99,7 +108,15 @@ Create-NewProject -newProjectName $newProjectName `
 Update-ConnectionStringInAppSettings -projectPath "$(Join-Path $PathToYourNewProject $NewProjectName)" `
                                     -connectionString $connectionString `
                                     -connectionName $DbContextName
-                                                       
+
+if( $InstallJWT ) {
+    $JwtTask = $JwtSettings | Where-Object { $_.TaskName -eq 'SetupJWT-Options' }
+    Update-JwtInAppSettings -projectPath "$(Join-Path $PathToYourNewProject $NewProjectName)" `
+                            -Key $JwtTask.JwtKey `
+                            -Issuer $JwtTask.Issuer
+
+}
+
 
 # Get the path to the project file
 $pathToYourProjectFile = Get-ChildItem -Path $PathToYourNewProject -Filter *.csproj -Recurse | Select-Object -First 1
@@ -134,7 +151,54 @@ Scaffold-EntityModels @params
 # Scaffold the API with minimal CRUD operations
 Scaffold-API-MinimalCRUD -projectPath $projectPath -dbContextName $DbContextName
 
-Update-ProgramFileForControllers -projectPath $projectPath -projectName $NewProjectName -providerTarget $providerTarget -connectionStringName $DbContextName -dbContextName $DbContextName
+# Splat the parameters for the Update-ProgramFile function
+$updateProgramParams = @{
+    projectPath = $projectPath
+    projectName = $NewProjectName
+    providerTarget = $providerTarget
+    connectionStringName = $DbContextName
+    dbContextName = $DbContextName
+    InstallJWT = $InstallJWT
+}
+Update-ProgramFile @updateProgramParams
+
+
+
+
+###############################
+# Test bed - only F8 from here
+##############################
+
+
+if( $InstallJWT ) {
+    # Insert the API credentials in the appsettings.json file
+    $JwtTask = $JwtSettings | Where-Object { $_.TaskName -eq 'SetupJWT-Options' }
+    Update-JwtInAppSettings -projectPath "$PathToYourNewProject`\$newProjectName" `
+                            -Key $JwtTask.JwtKey `
+                            -Issuer $JwtTask.Issuer
+    # Insert the API-user credentials in the appsettings.json file
+    $JwtTask = $JwtSettings | Where-Object { $_.TaskName -eq 'SetupJWT-User' }
+    Update-APIInAppSettings -projectPath "$PathToYourNewProject`\$newProjectName" `
+                            -APIUser $JwtTask.JwtUsername `
+                            -APIPassword $JwtTask.JwtPassword
+
+    $ControllerFolder = "$PathToYourNewProject`\$newProjectName`\Controllers"
+    Create-JwtLoginController -ControllerFolderPath $ControllerFolder
+}
+
+
+<# Next:
+# Disse skal tilføjes:
+    * En mekanisme der looper gennem controllers, og protecter de controllers der er angivet i JwtSettings
+
+
+
+$AddThisToProgramFileForSwaggerAuthSupport => Program.cs -> Done
+$AddThisToProgramFile => Program.cs -> Done
+$JwtLoginController => Controllers/JwtLoginController.cs (Ny fil) -> Done
+
+
+#>
 
 
 # V2 notes:

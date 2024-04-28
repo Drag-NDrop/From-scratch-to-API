@@ -1,4 +1,4 @@
-Function Update-ProgramFileForControllers {
+Function Update-ProgramFile {
     param(
         [Parameter(Mandatory=$true)]
         [string]$projectPath,  # Path to the directory containing Program.cs
@@ -9,7 +9,9 @@ Function Update-ProgramFileForControllers {
         [Parameter(Mandatory=$true)]
         [string]$connectionStringName,  # The key name of your connection string in appsettings.json
         [Parameter(Mandatory=$true)]
-        [string]$providerTarget  # The provider target for the connection string (e.g. Microsoft.EntityFrameworkCore.SqlServer)
+        [string]$providerTarget,  # The provider target for the connection string (e.g. Microsoft.EntityFrameworkCore.SqlServer)
+        [Parameter(Mandatory=$false)]
+        [bool]$InstallJWT = $false  # A flag to indicate if JWT support should be installed
     )
 
     $programFilePath = Join-Path -Path $projectPath -ChildPath "Program.cs"
@@ -26,21 +28,82 @@ Function Update-ProgramFileForControllers {
     # Define the code snippets to insert
     $addControllersSnippet = "builder.Services.AddControllers();"
     $mapControllersSnippet = "app.MapControllers();"
+    $jwtConfigSnippet = @'
+    //Jwt configuration starts here
+    var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
+    var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
+    
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+     .AddJwtBearer(options =>
+     {
+         options.TokenValidationParameters = new TokenValidationParameters
+         {
+             ValidateIssuer = true,
+             ValidateAudience = true,
+             ValidateLifetime = true,
+             ValidateIssuerSigningKey = true,
+             ValidIssuer = jwtIssuer,
+             ValidAudience = jwtIssuer,
+             IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtKey))
+         };
+     });
+    //Jwt configuration ends here
+'@
+$swaggerAuthSupportSnippet = @'
+// Swagger Authorization support configuration starts here
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
+// Swagger Authorization support configuration ends here
+'@
 
-    # Define the target lines to search for
+# Define the target lines to search for
     $createBuilderLine = 'var builder = WebApplication.CreateBuilder(args);'
-    $swaggerGenTargetLine = "builder.Services.AddSwaggerGen();"
-    $appRunTargetLine = "app.Run();"
+    $swaggerGenTargetLine = 'builder.Services.AddSwaggerGen();'
+    $appRunTargetLine = 'app.Run();'
+    $jwtConfigTargetLine = 'var builder = WebApplication.CreateBuilder(args);'
+    $swaggerAuthSupportTargetLine = 'builder.Services.AddSwaggerGen();'    
 
     # Add usings on the top line
     $usings = @"
 using Microsoft.EntityFrameworkCore;
 using $providerTarget;
 using $projectName.Data;
-
 "@
     
+if($InstallJWT -eq $true){
+    $usings += @'
 
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;    
+
+'@
+}
     # Insert 'builder.Services.AddControllers();' after 'builder.Services.AddSwaggerGen();'
     if ($programContent -match [regex]::Escape($swaggerGenTargetLine)) {
         $programContent = $programContent -replace ([regex]::Escape($swaggerGenTargetLine)), ($swaggerGenTargetLine + "`r`n" + $addControllersSnippet)
@@ -55,6 +118,20 @@ using $projectName.Data;
         Write-Host "Target line for mapping controllers not found." -ForegroundColor Yellow
     }
 
+    if($InstallJWT -eq $true){
+        # Insert JwtConfigSnippet after 'var builder = WebApplication.CreateBuilder(args);'
+        if ($programContent -match [regex]::Escape($jwtConfigTargetLine)) {
+            $programContent = $programContent -replace ([regex]::Escape($jwtConfigTargetLine)), ($jwtConfigTargetLine + "`r`n" + $jwtConfigSnippet)
+        } else {
+            Write-Host "Target line for adding JWT Config not found." -ForegroundColor Yellow
+        }
+        # Insert SwaggerAuthSupportSnippet after 'builder.Services.AddSwaggerGen();'
+        if ($programContent -match [regex]::Escape($swaggerAuthSupportTargetLine)) {
+            $programContent = $programContent -replace ([regex]::Escape($swaggerAuthSupportTargetLine)), ($swaggerAuthSupportTargetLine + "`r`n" + $swaggerAuthSupportSnippet)
+        } else {
+            Write-Host "Target line for adding controllers not found." -ForegroundColor Yellow
+        }
+    }
     # Save the updated content back to Program.cs
     # Add usings to, on the top line
     $programContent = $usings + $programContent
@@ -78,13 +155,13 @@ builder.Services.AddDbContext<$dbContextName>(options =>
          }
         "Pomelo.EntityFrameworkCore.MySql" {
             $dbContextSnippet = @"
-            var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
 builder.Services.AddDbContext<$dbContextName>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("$connectionStringName"),serverVersion)
     .LogTo(Console.WriteLine, LogLevel.Information)
     .EnableSensitiveDataLogging()
     .EnableDetailedErrors()
-    );
+);
 "@
           }
         "MySql.Data.EntityFrameworkCore" {
