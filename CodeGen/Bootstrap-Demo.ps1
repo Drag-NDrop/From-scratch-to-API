@@ -20,7 +20,7 @@ This script will:
 # This should be your starting point, if debugging becomes necessary.
 
 # ==> Project variables <==
-$PathToYourNewProject = 'D:\LiveDemoForKlassen-TesterJWT'
+$PathToYourNewProject = 'D:\LiveDemoForKlassen-TesterJWT2'
 $NewProjectName = "GoSave"
 $DbContextName = "GoSaveContext"
 # ==> Database variables <==
@@ -35,14 +35,15 @@ if ($InstallJWT) {
         @{ TaskName='SetupJWT-Install'; PackageInformation='Microsoft.AspNetCore.Authentication.JwtBearer'; Version='8.0.4' },
         @{ TaskName='SetupJWT-Install'; PackageInformation='System.IdentityModel.Tokens.Jwt'; Version='7.5.1' },
         @{ TaskName='SetupJWT-Options'; JwtKey=(New-Guid).Guid; Issuer='yourCompanyIssuer.com' },
-        
         @{ TaskName='SetupJWT-User'; JwtUsername='Api-Admin'; JwtPassword=(New-Guid).Guid;},
-        @{ TaskName='SetupJWT-Choice'; Name='Protect-Get'; Choice='yes' },
+        
+        @{ TaskName='SetupJWT-Choice'; Name='Protect-Get'; Choice='no' },
         @{ TaskName='SetupJWT-Choice'; Name='Protect-GetById'; Choice='yes' },
         @{ TaskName='SetupJWT-Choice'; Name='Protect-Post'; Choice='yes' },
         @{ TaskName='SetupJWT-Choice'; Name='Protect-PutById'; Choice='yes' },
         @{ TaskName='SetupJWT-Choice'; Name='Protect-DeleteById'; Choice='yes' }
     )
+
 }
 
 $dependencyArray = @(
@@ -94,6 +95,7 @@ if( $InstallJWT ) {
     . './Functions/Update-JWTInAppSettings.ps1'
     . './Functions/Update-APIInAppSettings.ps1'
     . './Functions/Create-JwtLoginController.ps1'
+    . './Functions/Protect-Endpoints.ps1'
 }
 
 
@@ -186,7 +188,9 @@ if( $InstallJWT ) {
     Create-JwtLoginController -ControllerFolderPath $ControllerFolder
 }
 
+$EndpointProtectionTasks = $JwtSettings | Where-Object { $_.TaskName -eq 'SetupJWT-Choice' }
 
+Protect-Endpoints -TaskObjects $EndpointProtectionTasks -ProjectPath $projectPath
 <# Next:
 # Disse skal tilføjes:
     * En mekanisme der looper gennem controllers, og protecter de controllers der er angivet i JwtSettings
